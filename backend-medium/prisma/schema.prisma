@@ -1,0 +1,63 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String      @id @default(uuid())
+  name       String
+  email      String      @unique
+  password   String
+  posts      Blog[]
+  savedPosts SavedPost[]
+}
+
+model SavedPost {
+  id     String @id @default(uuid())
+  userId String
+  x      User   @relation(fields: [userId], references: [id])
+}
+
+model Blog {
+  id        String  @id @default(uuid())
+  title     String
+  content   String
+  authorId  String
+  author    User    @relation(fields: [authorId], references: [id])
+  published Boolean @default(false)
+}
+
+// model Car{
+//   Name String
+//   ModelNumber String
+//   CarNumber Int @id @default(autoincrement())
+// }
+
+// model Key{
+//   CarId Int @unique
+//   Alram Boolean @default(false)
+//   car Car @relation(fields: [CarId], references: [CarNumber])
+// }
+
+model Car {
+  Name        String
+  ModelNumber String
+  CarNumber   Int    @id @default(autoincrement())
+  Key         Key?
+}
+
+model Key {
+  CarId Int     @unique
+  Alram Boolean @default(false)
+  car   Car     @relation(fields: [CarId], references: [CarNumber])
+}

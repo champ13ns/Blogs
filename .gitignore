@@ -1,0 +1,4 @@
+/backend-medium/.wrangler
+/backend-medium/node_modules
+/backend-meduim/prisma
+/frontend/node_modules
