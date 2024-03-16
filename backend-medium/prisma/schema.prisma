@@ -34,7 +34,8 @@ model Blog {
   content   String
   authorId  String
   author    User    @relation(fields: [authorId], references: [id])
-  published Boolean @default(false)
+  name String
+  Date String @default ("Sat Mar 16 2024")
 }
 
 // model Car{

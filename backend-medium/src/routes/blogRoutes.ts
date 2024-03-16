@@ -46,9 +46,7 @@ blogRoutes.get('/allBlogs', async (c) => {
     }).$extends(withAccelerate())
 
         try{
-            const allBlogs = await prisma.post.findMany({
-                where:{}
-            });
+            const allBlogs = await prisma.blog.findMany();
             console.log(allBlogs)
             c.status(200)
            return c.json({
@@ -77,7 +75,7 @@ blogRoutes.put('/blog/:id',async (c) => {
         datasourceUrl : c.env.DATABASE_URL
     }).$extends(withAccelerate())
     try{
-        const updatedBlog = await prisma.post.update({
+        const updatedBlog = await prisma.blog.update({
             where : {
                 id : id
             }, data: {
@@ -104,7 +102,7 @@ blogRoutes.get('/blog/:id'  ,  async(c) => {
         datasourceUrl : c.env.DATABASE_URL
     }).$extends(withAccelerate())
 
-    const blog = await prisma.post.findMany({
+    const blog = await prisma.blog.findMany({
         where:{
             id : id
         }
@@ -124,19 +122,41 @@ blogRoutes.get('/blog/:id'  ,  async(c) => {
     }
 })
 
+blogRoutes.delete('/deleteAll' ,async(c)=> {
+    const prisma = new PrismaClient({
+        datasourceUrl : c.env.DATABASE_URL 
+    }).$extends(withAccelerate())
+    try{
+        const res = await prisma.blog.deleteMany({
+            where: {
+            }
+        })
+        c.status(200)
+       return c.json({
+            message : "Deleted Successfully"
+        })
+    } catch(err){
+        c.status(200)
+        return c.json({
+            message : "Error while deleting",
+            
+        })
+    }
+})
+
 blogRoutes.delete('/blog/:id' , async (c) => {
     const id = c.req.param("id");
     const prisma = new PrismaClient({
         datasourceUrl : c.env.DATABASE_URL
     }).$extends(withAccelerate())
     try{
-        const res = await prisma.post.delete({
+        const res = await prisma.blog.delete({
             where: {
                 id : id
             }
         })
         c.status(200)
-        c.json({
+       return c.json({
             message : "Deleted Successfully"
         })
     } catch(err){
@@ -158,12 +178,19 @@ blogRoutes.post('/createBlog' ,  async (c)=> {
     const title = body.title;
     const content = body.content;
     const authorId = body.authorId;
-    const newPost = await prisma.post.create(
+    const name = await prisma.user.findFirst({
+        where:{
+            id : authorId
+        }
+    }) || ""
+    const newPost = await prisma.blog.create(
         {
             data:{
                 title : title,
                 content : content,
                 authorId : authorId,
+                name : name.name,
+                Date : new Date().toDateString() || new Date().toDateString
             }
         }
     )
