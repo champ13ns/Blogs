@@ -10,6 +10,35 @@ export const userRoute = new Hono<{
 	}
 }>();
 
+userRoute.get('/getUserDetail', async(c) => {
+    const prisma = new PrismaClient({
+        datasourceUrl : c.env.DATABASE_URL
+    }).$extends(withAccelerate())
+
+    try{
+        const header = c.req.header('Authorization') || "";
+        const token_str = header?.slice(7);
+    const res =  decode(token_str);
+    if(res){
+        c.status(200)
+        return c.json({
+            res
+        })
+    } else{
+        c.status(403)
+        c.json({
+            message : "Not-authorized",
+            res
+        })
+        return;
+    }
+    } catch(err){
+        c.status(403)
+        c.json({
+            message : "Not-authorized",
+        })  
+    }}
+)
 
 userRoute.post('/signup' , async (c) => {
     const prisma = new PrismaClient({

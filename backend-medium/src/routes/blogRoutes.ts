@@ -26,15 +26,18 @@ export const blogRoutes = new Hono<{
 blogRoutes.use('/*', async (c , next)=> {
     const header = c.req.header('Authorization') || "";
     const token_str = header?.slice(7);
-    console.log(token_str)
+    console.log("l29 ",token_str)
     const res = await verify(token_str , c.env.JWT_SECRET);
+    console.log("l31 ",res);
     if(res){
-        c.set("userId" , res.id)
+        console.log(res)
+        c.set("userId" , res)
     await next();
     } else{
         c.status(403)
         c.json({
-            message : "Not-authorized"
+            message : "Not-authorized",
+            res
         })
         return;
     }
@@ -47,10 +50,11 @@ blogRoutes.get('/allBlogs', async (c) => {
 
         try{
             const allBlogs = await prisma.blog.findMany();
-            console.log(allBlogs)
+            console.log("uesr id is ",c.get("userId"))
             c.status(200)
            return c.json({
-                allBlogs
+                allBlogs,
+                userId : c.get("userId")
             })
         }
        catch(err){
@@ -61,7 +65,7 @@ blogRoutes.get('/allBlogs', async (c) => {
        }
 })
 
-blogRoutes.put('/blog/:id',async (c) => {
+blogRoutes.put('/:id',async (c) => {
     const body = await c.req.json();
     const id = c.req.param("id");
     console.log("id is ",id)
@@ -84,20 +88,20 @@ blogRoutes.put('/blog/:id',async (c) => {
             }
         })
         c.status(200)
-        c.json({
+       return c.json({
             message : "Successfully Updated"
         })
     } catch(err){
         c.status(403);
-        c.json({
+        return c.json({
             message : "invalid"
         })
     }
 })
 
-blogRoutes.get('/blog/:id'  ,  async(c) => { 
+blogRoutes.get('/:id'  ,  async(c) => { 
     const id = c.req.param("id");
-
+    
     const prisma = new PrismaClient({
         datasourceUrl : c.env.DATABASE_URL
     }).$extends(withAccelerate())
@@ -122,29 +126,29 @@ blogRoutes.get('/blog/:id'  ,  async(c) => {
     }
 })
 
-blogRoutes.delete('/deleteAll' ,async(c)=> {
-    const prisma = new PrismaClient({
-        datasourceUrl : c.env.DATABASE_URL 
-    }).$extends(withAccelerate())
-    try{
-        const res = await prisma.blog.deleteMany({
-            where: {
-            }
-        })
-        c.status(200)
-       return c.json({
-            message : "Deleted Successfully"
-        })
-    } catch(err){
-        c.status(200)
-        return c.json({
-            message : "Error while deleting",
+// blogRoutes.delete('/deleteAll' ,async(c)=> {
+//     const prisma = new PrismaClient({
+//         datasourceUrl : c.env.DATABASE_URL 
+//     }).$extends(withAccelerate())
+//     try{
+//         const res = await prisma.blog.deleteMany({
+//             where: {
+//             }
+//         })
+//         c.status(200)
+//        return c.json({
+//             message : "Deleted Successfully"
+//         })
+//     } catch(err){
+//         c.status(200)
+//         return c.json({
+//             message : "Error while deleting",
             
-        })
-    }
-})
+//         })
+//     }
+// })
 
-blogRoutes.delete('/blog/:id' , async (c) => {
+blogRoutes.delete('/:id' , async (c) => {
     const id = c.req.param("id");
     const prisma = new PrismaClient({
         datasourceUrl : c.env.DATABASE_URL

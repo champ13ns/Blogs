@@ -10,11 +10,13 @@ import {
 import './index.css'
 import SignUp from './Pages/SignUp.tsx';
 import Home from './Pages/Home.tsx';
+import Blog from './Pages/Blog.tsx';
+import CreateBlog from './Components/CreateBlog.tsx';
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <App />,
+    element: <Home />,
   },
   {
     path:'/login',
@@ -25,6 +27,12 @@ const router = createBrowserRouter([
   },{
     path : "/home",
     element : <Home />
+  },{
+    path : "/blog/:userId/:blogId",
+    element : <Blog/>
+  },{
+    path : '/createBlog/:id',
+    element : <CreateBlog />
   }
 ]);
 
